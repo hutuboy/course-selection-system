@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公选课选课系统</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <a href="./" class="logo">公选课选课系统</a>
+            </div>
+            <div class="navbar-menu" id="navMenu">
+                <a href="#courses" class="nav-link">课程列表</a>
+                <a href="#my-courses" class="nav-link" id="myCoursesLink" style="display:none">我的选课</a>
+                <a href="#admin" class="nav-link" id="adminLink" style="display:none">管理后台</a>
+                <div id="authButtons">
+                    <button class="btn btn-outline" onclick="showLoginModal()">登录</button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">注册</button>
+                </div>
+                <div id="userMenu" style="display:none">
+                    <span class="user-name" id="userName"></span>
+                    <button class="btn btn-outline" onclick="logout()">退出</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 公告栏 -->
+            <div class="announcement" id="announcement">
+                <h3>欢迎使用公选课选课系统</h3>
+                <p>请先登录后查看可用课程。</p>
+            </div>
+
+            <!-- 课程列表 -->
+            <section id="courses-section">
+                <div class="section-header">
+                    <h2>可选课程</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="搜索课程名称或描述...">
+                        <button class="btn btn-primary" onclick="searchCourses()">搜索</button>
+                    </div>
+                </div>
+
+                <!-- 过滤器 -->
+                <div class="filters">
+                    <select id="categoryFilter" onchange="filterCourses()">
+                        <option value="">所有类别</option>
+                    </select>
+                    <select id="statusFilter" onchange="filterCourses()">
+                        <option value="">所有状态</option>
+                        <option value="1">开放选课</option>
+                        <option value="2">草稿</option>
+                    </select>
+                </div>
+
+                <!-- 课程卡片 -->
+                <div id="courseList" class="course-grid">
+                </div>
+
+                <!-- 分页 -->
+                <div class="pagination" id="pagination">
+                    <button class="btn btn-outline" id="prevPage" onclick="changePage(-1)">上一页</button>
+                    <span id="pageInfo">第 1 页</span>
+                    <button class="btn btn-outline" id="nextPage" onclick="changePage(1)">下一页</button>
+                </div>
+            </section>
+
+            <!-- 我的选课 -->
+            <section id="my-courses-section" style="display:none">
+                <h2>我的选课</h2>
+                <div id="myCourseList" class="course-grid">
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 登录模态框 -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>用户登录</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginUsername">用户名</label>
+                    <input type="text" id="loginUsername" required placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">密码</label>
+                    <input type="password" id="loginPassword" required placeholder="请输入密码">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">登录</button>
+                <p class="form-footer">还没有账号？<a href="#" onclick="showRegisterModal()">立即注册</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>用户注册</h2>
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="regUsername">用户名</label>
+                    <input type="text" id="regUsername" required placeholder="3-50个字符，字母数字下划线">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">密码</label>
+                    <input type="password" id="regPassword" required placeholder="至少6个字符">
+                </div>
+                <div class="form-group">
+                    <label for="regRealName">真实姓名</label>
+                    <input type="text" id="regRealName" required placeholder="请输入真实姓名">
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">邮箱（可选）</label>
+                    <input type="email" id="regEmail" placeholder="请输入邮箱">
+                </div>
+                <div class="form-group">
+                    <label for="regRole">角色</label>
+                    <select id="regRole">
+                        <option value="STUDENT">学生</option>
+                        <option value="TEACHER">教师</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">注册</button>
+                <p class="form-footer">已有账号？<a href="#" onclick="showLoginModal()">立即登录</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- 课程详情模态框 -->
+    <div class="modal" id="courseDetailModal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeModal('courseDetailModal')">&times;</span>
+            <div id="courseDetailContent">
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 公选课选课系统 | 基于 Supabase Edge Functions</p>
+        </div>
+    </footer>
+
+    <script src="./js/api.js"></script>
+</body>
+</html>
